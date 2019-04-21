@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -51,6 +52,14 @@ func main() {
 
 	// Start the web server (for serving prometheus metrics)
 	go func() {
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			io.WriteString(w,
+				`<!doctype html>
+			  <title>MySensors Prometheus Exporter</title>
+			  <h1>MySensors Prometheus Exporter</h1>
+			  <a href="/metrics">Metrics</a>`)
+		})
 		http.Handle("/metrics", prometheus.Handler())
 		if err := http.ListenAndServe(*addr, nil); err != nil {
 			panic(err)
